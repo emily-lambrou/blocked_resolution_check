@@ -37,7 +37,7 @@ name: Check Blocked Issues Resolution
 
 on:
   schedule:
-    - cron: '0 5,10 * * *'  # Runs twice daily at 06:00 and 18:00 UTC
+    - cron: '0 5,10 * * *'  # Runs twice daily at 05:00 and 10:00 UTC
   workflow_dispatch:
 
 concurrency:
