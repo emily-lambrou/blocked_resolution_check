@@ -1,0 +1,24 @@
+name: "Blocked Resolution Check"
+description: "Detects resolved blockers and comments on blocked issues"
+
+inputs:
+  gh_token:
+    description: "GitHub token"
+    required: true
+  project_number:
+    description: "GitHub Project V2 number"
+    required: true
+  dry_run:
+    description: "Run without making changes"
+    required: false
+    default: "False"
+  enterprise_github:
+    required: false
+    default: "False"
+  repository_owner_type:
+    required: false
+    default: "organization"
+
+runs:
+  using: "docker"
+  image: "Dockerfile"
