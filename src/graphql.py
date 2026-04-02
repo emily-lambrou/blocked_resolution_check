@@ -84,6 +84,11 @@ def get_blocked_label_issues():
             number
             state
             body
+            assignees(first: 10) {
+              nodes {
+                login
+              }
+            }
           }
         }
       }
