@@ -22,7 +22,7 @@ def extract_blockers(issue_body):
 
     # Extract the "Blocked by" section
     section_match = re.search(
-        r"##\s*Blocked by(.*?)(\n##|\Z)",
+        r"##\s*Blocked\s+By:?\s*(.*?)(\n##|\Z)",        
         issue_body,
         re.IGNORECASE | re.DOTALL,
     )
