@@ -1,24 +1,35 @@
 name: "Blocked Resolution Check"
 description: "Detects resolved blockers and comments on blocked issues"
-
-inputs:
-  gh_token:
-    description: "GitHub token"
-    required: true
-  project_number:
-    description: "GitHub Project V2 number"
-    required: true
-  dry_run:
-    description: "Run without making changes"
-    required: false
-    default: "False"
-  enterprise_github:
-    required: false
-    default: "False"
-  repository_owner_type:
-    required: false
-    default: "organization"
-
+author: "Emily Lambrou"
+branding:
+  icon: 'notification'
+  color: 'green'
 runs:
   using: "docker"
   image: "Dockerfile"
+inputs:
+  gh_token:
+    description: "GitHub Personal Access Token"
+    required: true
+  project_number:
+    description: "The Project Number"
+    required: true 
+  notification_type:
+    description: "The type of notification (comment,email)"
+    required: true
+    default: 'comment'
+  enterprise_github:
+    description: "Determines if the GitHub is the enterprise ot not (True,False)"
+    required: false
+    default: 'False'
+  repository_owner_type:
+    description: "The type of the repository owner (organization, user)"
+    required: true
+    default: 'user'
+  dry_run:
+    description: "DryRun Mode (True, False)"
+    required: false
+    default: 'False'
+
+
+
