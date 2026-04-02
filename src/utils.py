@@ -5,15 +5,17 @@ COMMENT_TEMPLATE = (
     "Please check if you can proceed."
 )
 
+
 def extract_blockers(issue_body):
-    "def extract_blockers(issue_body):
     """
     Extract blocker references from the 'Blocked by' section.
-    Supports:
+
+    Supported formats:
       - #123
       - repo#456
       - org/repo#789
-      - Full GitHub URLs
+      - Full GitHub URLs:
+        https://github.example.com/org/repo/issues/123
     """
     if not issue_body:
         return []
@@ -30,32 +32,44 @@ def extract_blockers(issue_body):
 
     section = section_match.group(1)
 
-    references = []
+    references = set()
 
     # Match org/repo#123, repo#123, or #123
     pattern = r"(?:[\w\-.]+\/[\w\-.]+#\d+|[\w\-.]+#\d+|#\d+)"
-    references.extend(re.findall(pattern, section))
+    references.update(re.findall(pattern, section))
 
-    # Match full GitHub URLs
+    # Match full GitHub or GitHub Enterprise URLs
     url_pattern = r"https?://[^/]+/([\w\-.]+)/([\w\-.]+)/issues/(\d+)"
     for owner, repo, number in re.findall(url_pattern, section):
-        references.append(f"{owner}/{repo}#{number}")
+        references.add(f"{owner}/{repo}#{number}")
 
-    return list(set(references))
-    
+    return sorted(references)
+
+
 def build_comment(blocker_number, assignees):
-    base_message = (
-        f"The issue number #{blocker_number} has been resolved. "
-        f"Please check if you can proceed."
-    )
+    """
+    Build the notification comment.
+
+    Returns:
+        tuple:
+            base_message: Used for duplicate detection.
+            full_message: Includes assignee mentions.
+    """
+    base_message = COMMENT_TEMPLATE.format(blocker=blocker_number)
 
     if not assignees:
         return base_message, base_message
 
-    mentions = " ".join([f"@{a}" for a in assignees])
+    mentions = " ".join(f"@{assignee}" for assignee in assignees)
     full_message = f"{mentions} {base_message}"
 
     return base_message, full_message
 
+
 def comment_exists(comments, message):
-    return any(message in comment["body"] for comment in comments)
+    """
+    Check if a comment already exists to prevent duplicates.
+    Duplicate detection is based only on the base message,
+    ignoring assignee mentions.
+    """
+    return any(message in comment.get("body", "") for comment in comments)
