@@ -25,7 +25,7 @@ def resolve_issue_reference(reference):
     """
     reference = reference.strip()
 
-    # Handle full GitHub/GitHub Enterprise URLs
+    # Handle full GitHub URLs
     url_match = re.match(
         r"https?://[^/]+/(?P<org>[\w\-.]+)/(?P<repo>[\w\-.]+)/issues/(?P<number>\d+)",
         reference,
@@ -166,28 +166,6 @@ def get_blocked_label_issues():
     issues = data["data"]["repository"]["issues"]["nodes"]
     info(f"Found {len(issues)} blocked issues by label.")
     return issues
-
-
-def get_issue_state(issue_number):
-    """Fetch the state of a specific issue in the current repository."""
-    query = """
-    query($owner: String!, $repo: String!, $number: Int!) {
-      repository(owner: $owner, name: $repo) {
-        issue(number: $number) {
-          state
-        }
-      }
-    }
-    """
-
-    variables = {
-        "owner": OWNER,
-        "repo": REPO,
-        "number": issue_number,
-    }
-
-    data = run_query(query, variables)
-    return data["data"]["repository"]["issue"]["state"]
 
 
 def get_issue_comments(issue_id):
