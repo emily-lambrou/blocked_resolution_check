@@ -12,6 +12,58 @@ def run_query(query, variables=None):
     response.raise_for_status()
     return response.json()
 
+def resolve_issue_reference(reference):
+    """
+    Resolve issue references such as:
+    - #123
+    - repo#456
+    - org/repo#789
+    """
+    match = re.match(
+        r"(?:(?P<org>[\w\-.]+)/(?P<repo>[\w\-.]+))?#(?P<number>\d+)",
+        reference,
+    )
+
+    if not match:
+        return None
+
+    org = match.group("org") or config.repository_owner
+    repo = match.group("repo") or config.repository_name
+    number = int(match.group("number"))
+
+    query = """
+    query($owner: String!, $repo: String!, $number: Int!) {
+      repository(owner: $owner, name: $repo) {
+        issue(number: $number) {
+          id
+          number
+          state
+          url
+        }
+      }
+    }
+    """
+
+    variables = {
+        "owner": org,
+        "repo": repo,
+        "number": number,
+    }
+
+    response = requests.post(
+        config.api_endpoint,
+        json={"query": query, "variables": variables},
+        headers=config.HEADERS,
+    )
+
+    response.raise_for_status()
+    data = response.json()
+
+    return (
+        data.get("data", {})
+        .get("repository", {})
+        .get("issue")
+    )
 
 def get_blocked_project_issues():
     """Fetch open issues where Project Status = Blocked."""
