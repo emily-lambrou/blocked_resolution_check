@@ -17,7 +17,10 @@ def main():
     label_issues = get_blocked_label_issues()
 
     # Merge and remove duplicates
-    issues = {issue["number"]: issue for issue in project_issues + label_issues}.values()
+    issues = {
+        issue["number"]: issue
+        for issue in project_issues + label_issues
+    }.values()
 
     info(f"Processing {len(issues)} blocked issues.")
 
@@ -41,17 +44,27 @@ def main():
             state = get_issue_state(blocker)
 
             if state == "CLOSED":
-               base_message, full_message = build_comment(blocker, assignees)
+                base_message, full_message = build_comment(
+                    blocker, assignees
+                )
+
                 # Check duplicates using ONLY base message
                 if not comment_exists(comments, base_message):
-                
                     if DRY_RUN:
-                        info(f"[DRY RUN] Would comment on #{issue_number}: {full_message}")
+                        info(
+                            f"[DRY RUN] Would comment on "
+                            f"#{issue_number}: {full_message}"
+                        )
                     else:
                         add_issue_comment(issue_id, full_message)
-                        info(f"Comment added to Issue #{issue_number}")
+                        info(
+                            f"Comment added to Issue #{issue_number}"
+                        )
                 else:
-                    info(f"Comment already exists for blocker #{blocker}")
+                    info(
+                        f"Comment already exists for blocker "
+                        f"#{blocker}"
+                    )
 
     info("Blocked issue resolution check completed.")
 
