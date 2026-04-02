@@ -25,6 +25,8 @@ def main():
         issue_number = issue["number"]
         issue_id = issue["id"]
         issue_body = issue.get("body", "")
+        assignee_nodes = issue.get("assignees", {}).get("nodes", [])
+        assignees = [a["login"] for a in assignee_nodes]
 
         info(f"Checking Issue #{issue_number}")
 
@@ -39,7 +41,7 @@ def main():
             state = get_issue_state(blocker)
 
             if state == "CLOSED":
-                message = build_comment(blocker)
+                message = build_comment(blocker, assignees)
 
                 if not comment_exists(comments, message):
                     if DRY_RUN:
