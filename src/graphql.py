@@ -27,6 +27,11 @@ def get_blocked_project_issues():
                   number
                   state
                   body
+                  assignees(first: 10) {
+                    nodes {
+                      login
+                    }
+                  }
                 }
               }
               fieldValueByName(name: "Status") {
