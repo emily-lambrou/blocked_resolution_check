@@ -1,23 +1,23 @@
 import os
 
-repository_owner = os.environ['GITHUB_REPOSITORY_OWNER']
-repository_owner_type = os.environ['INPUT_REPOSITORY_OWNER_TYPE']
-repository = os.environ['GITHUB_REPOSITORY']
-repository_name = repository.split('/')[1]
-server_url = os.environ['GITHUB_SERVER_URL']
-is_enterprise = True if os.environ.get('INPUT_ENTERPRISE_GITHUB') == 'True' else False
-dry_run = True if os.environ.get('INPUT_DRY_RUN') == 'True' else False
+GH_TOKEN = os.getenv("INPUT_GH_TOKEN")
+PROJECT_NUMBER = int(os.getenv("INPUT_PROJECT_NUMBER", "0"))
+DRY_RUN = os.getenv("INPUT_DRY_RUN", "False").lower() == "true"
+ENTERPRISE_GITHUB = os.getenv("INPUT_ENTERPRISE_GITHUB", "False")
+REPOSITORY_OWNER_TYPE = os.getenv("INPUT_REPOSITORY_OWNER_TYPE", "organization")
 
-gh_token = os.environ['INPUT_GH_TOKEN']
-project_number = int(os.environ['INPUT_PROJECT_NUMBER'])
-api_endpoint = os.environ.get('GITHUB_GRAPHQL_URL', 'https://github.intranet.unicaf.org/api/graphql')
-duedate_field_name = os.environ['INPUT_DUEDATE_FIELD_NAME']
+GITHUB_REPOSITORY = os.getenv("GITHUB_REPOSITORY", "")
+OWNER, REPO = GITHUB_REPOSITORY.split("/")
+
+BASE_URL = "https://github.intranet.unicaf.org/api"
+GRAPHQL_URL = f"{BASE_URL}/graphql"
 
 notification_type = os.environ['INPUT_NOTIFICATION_TYPE']
 
 if notification_type not in ['comment', 'email']:
     raise Exception(f'Unsupported notification type {notification_type}')
     
+
 HEADERS = {
     "Authorization": f"Bearer {GH_TOKEN}",
     "Accept": "application/vnd.github+json"
