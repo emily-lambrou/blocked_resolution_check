@@ -22,10 +22,17 @@ def extract_blockers(issue_body):
     section = match.group(1)
     return [int(num.replace("#", "")) for num in re.findall(r"#\d+", section)]
 
+def build_comment(blocker_number, assignees):
+    base_message = (
+        f"The issue number #{blocker_number} has been resolved. "
+        f"Please check if you can proceed."
+    )
 
-def build_comment(blocker_number):
-    return COMMENT_TEMPLATE.format(blocker=blocker_number)
+    if not assignees:
+        return base_message
 
+    mentions = " ".join([f"@{a}" for a in assignees])
+    return f"{mentions} {base_message}"
 
 def comment_exists(comments, message):
     return any(message in comment["body"] for comment in comments)
