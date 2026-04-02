@@ -41,13 +41,14 @@ def main():
             state = get_issue_state(blocker)
 
             if state == "CLOSED":
-                message = build_comment(blocker, assignees)
-
-                if not comment_exists(comments, message):
+               base_message, full_message = build_comment(blocker, assignees)
+                # Check duplicates using ONLY base message
+                if not comment_exists(comments, base_message):
+                
                     if DRY_RUN:
-                        info(f"[DRY RUN] Would comment on #{issue_number}: {message}")
+                        info(f"[DRY RUN] Would comment on #{issue_number}: {full_message}")
                     else:
-                        add_issue_comment(issue_id, message)
+                        add_issue_comment(issue_id, full_message)
                         info(f"Comment added to Issue #{issue_number}")
                 else:
                     info(f"Comment already exists for blocker #{blocker}")
