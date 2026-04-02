@@ -146,4 +146,3 @@ def add_issue_comment(issue_id, body):
     """
 
     run_query(mutation, {"subjectId": issue_id, "body": body})
-    info("Comment added successfully.")
