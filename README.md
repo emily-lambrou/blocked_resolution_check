@@ -47,7 +47,7 @@ concurrency:
 jobs:
   check_blocked_resolution:
     runs-on: self-hosted
-    timeout-minutes: 20
+    timeout-minutes: 10
 
     steps:
       - name: Checkout Repository
