@@ -1,6 +1,7 @@
 from config import DRY_RUN
 from logger import info
 from utils import extract_blockers, build_comment, comment_exists
+from graphql import resolve_issue_reference
 from graphql import (
     get_blocked_project_issues,
     get_blocked_label_issues,
