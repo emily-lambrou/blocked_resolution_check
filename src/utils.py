@@ -29,10 +29,12 @@ def build_comment(blocker_number, assignees):
     )
 
     if not assignees:
-        return base_message
+        return base_message, base_message
 
     mentions = " ".join([f"@{a}" for a in assignees])
-    return f"{mentions} {base_message}"
+    full_message = f"{mentions} {base_message}"
+
+    return base_message, full_message
 
 def comment_exists(comments, message):
     return any(message in comment["body"] for comment in comments)
