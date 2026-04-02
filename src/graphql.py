@@ -1,4 +1,5 @@
 import requests
+import re
 from config import HEADERS, GRAPHQL_URL, OWNER, REPO, PROJECT_NUMBER
 from logger import info
 
