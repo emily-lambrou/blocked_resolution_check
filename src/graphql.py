@@ -1,10 +1,11 @@
-import requests
 import re
+import requests
 from config import HEADERS, GRAPHQL_URL, OWNER, REPO, PROJECT_NUMBER
 from logger import info
 
 
 def run_query(query, variables=None):
+    """Execute a GraphQL query."""
     response = requests.post(
         GRAPHQL_URL,
         json={"query": query, "variables": variables or {}},
@@ -13,24 +14,41 @@ def run_query(query, variables=None):
     response.raise_for_status()
     return response.json()
 
+
 def resolve_issue_reference(reference):
     """
     Resolve issue references such as:
     - #123
     - repo#456
     - org/repo#789
+    - Full GitHub or GitHub Enterprise URLs
     """
-    match = re.match(
-        r"(?:(?P<org>[\w\-.]+)/(?P<repo>[\w\-.]+))?#(?P<number>\d+)",
+    reference = reference.strip()
+
+    # Handle full GitHub/GitHub Enterprise URLs
+    url_match = re.match(
+        r"https?://[^/]+/(?P<org>[\w\-.]+)/(?P<repo>[\w\-.]+)/issues/(?P<number>\d+)",
         reference,
     )
 
-    if not match:
-        return None
+    if url_match:
+        org = url_match.group("org")
+        repo = url_match.group("repo")
+        number = int(url_match.group("number"))
+    else:
+        # Handle #123, repo#123, org/repo#123
+        match = re.match(
+            r"(?:(?P<org>[\w\-.]+)/)?(?:(?P<repo>[\w\-.]+))?#(?P<number>\d+)",
+            reference,
+        )
 
-    org = match.group("org") or config.repository_owner
-    repo = match.group("repo") or config.repository_name
-    number = int(match.group("number"))
+        if not match:
+            info(f"Invalid issue reference: {reference}")
+            return None
+
+        org = match.group("org") or OWNER
+        repo = match.group("repo") or REPO
+        number = int(match.group("number"))
 
     query = """
     query($owner: String!, $repo: String!, $number: Int!) {
@@ -51,20 +69,14 @@ def resolve_issue_reference(reference):
         "number": number,
     }
 
-    response = requests.post(
-        config.api_endpoint,
-        json={"query": query, "variables": variables},
-        headers=config.HEADERS,
-    )
-
-    response.raise_for_status()
-    data = response.json()
+    data = run_query(query, variables)
 
     return (
         data.get("data", {})
         .get("repository", {})
         .get("issue")
     )
+
 
 def get_blocked_project_issues():
     """Fetch open issues where Project Status = Blocked."""
@@ -157,7 +169,7 @@ def get_blocked_label_issues():
 
 
 def get_issue_state(issue_number):
-    """Fetch state of a specific issue."""
+    """Fetch the state of a specific issue in the current repository."""
     query = """
     query($owner: String!, $repo: String!, $number: Int!) {
       repository(owner: $owner, name: $repo) {
